@@ -1,7 +1,33 @@
 {
-  "name": "node-starter",
-  "version": "0.0.0",
+  "name": "co-scrapper",
+  "version": "0.1.0",
+  "bin": {
+    "sitemap-scrapper": "bin/sitemap-scrapper.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  }
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "synth": "cdk synth",
+    "deploy": "cdk deploy --all --require-approval never",
+    "install-lambdas-dependencies": "npm install --workspaces",
+    "install-all": "npm install && npm run install-lambdas-dependencies"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.10",
+    "@types/node": "10.17.27",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.2.0",
+    "aws-cdk": "2.62.0",
+    "ts-node": "^9.0.0",
+    "typescript": "~3.9.7"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.62.0",
+    "constructs": "^10.0.0",
+    "source-map-support": "^0.5.16"
+  },
+  "workspaces": [
+    "lambdas/*"
+  ]
 }

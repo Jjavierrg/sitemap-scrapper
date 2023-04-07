@@ -1,0 +1,10 @@
+{
+    "name": "sitemap-scrapper",
+    "version": "1.0.0",
+    "main": "index.ts",
+    "dependencies": {
+        "@aws-sdk/client-dynamodb": "^3.258.0",
+        "@aws-sdk/client-sns": "^3.258.0",
+        "@aws-sdk/util-dynamodb": "^3.58.0"
+    }
+}
