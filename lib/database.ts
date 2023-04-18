@@ -13,10 +13,6 @@ export class sitemapDatabase extends Construct {
         name: 'site',
         type: AttributeType.STRING
       },
-      sortKey: {
-        name: 'updatedDate',
-        type: AttributeType.STRING
-      },
       tableName: 'sitemapScrapper',
       removalPolicy: RemovalPolicy.DESTROY,
       billingMode: BillingMode.PAY_PER_REQUEST

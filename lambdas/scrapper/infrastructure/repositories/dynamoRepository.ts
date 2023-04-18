@@ -36,7 +36,7 @@ const flattenObject = (obj: any, prefix: string = ''): Record<string, any> =>
 export class DynamoRepository<T extends object, K extends Key<T>> implements ReadRepository<T, K>, WriteRepository<T, K> {
   protected dynamoClient: DynamoDBClient;
 
-  protected constructor(private readonly tableName: string) {
+  protected constructor(protected readonly tableName: string) {
     this.dynamoClient = ddbClient;
   }
 
@@ -114,9 +114,16 @@ export class DynamoRepository<T extends object, K extends Key<T>> implements Rea
       TableName: this.tableName
     };
 
-    const { Items } = await this.dynamoClient.send(new ScanCommand(params));
-    console.log(`Retrieved items from table ${this.tableName}`, { numberFoundItems: Items?.length ?? 0 });
-    return Items?.map((item: any) => unmarshall(item) as T) ?? [];
+    const result: T[] = [];
+
+    do {
+      const { Items, LastEvaluatedKey } = await this.dynamoClient.send(new ScanCommand(params));
+      result.push(...(Items?.map((item) => unmarshall(item) as T) ?? []));
+      params.ExclusiveStartKey = LastEvaluatedKey;
+    } while (params.ExclusiveStartKey);
+
+    console.log(`Retrieved items from table ${this.tableName}`, { numberFoundItems: result?.length ?? 0 });
+    return result;
   }
 
   /** @inheritdoc */
