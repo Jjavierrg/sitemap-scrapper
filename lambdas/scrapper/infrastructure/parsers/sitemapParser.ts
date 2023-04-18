@@ -1,6 +1,6 @@
 import * as https from 'https';
 import { parseStringPromise } from 'xml2js';
-import { Entry } from '../models/entry';
+import { Entry } from '../../models/entry';
 import { ISiteMapParser } from './sitemapParser.interface';
 
 /**
@@ -55,6 +55,6 @@ export class SiteMapParser implements ISiteMapParser {
    */
   private async parseEntries(xmlContent: string): Promise<Entry[]> {
     const result = await parseStringPromise(xmlContent);
-    return result.urlset.url.map((url: any) => ({ site: url.loc[0], updatedDate: new Date(url.lastmod[0]) }));
+    return result.urlset.url.map((url: any) => ({ site: url.loc[0], updatedDate: new Date(url.lastmod[0]).getTime() }));
   }
 }

@@ -18,7 +18,7 @@ export class TelegramNotificationService {
       return;
     }
 
-    const message = entries.map((entry) => `Se actulizó la URL ${entry.site} (${entry.updatedDate.toDateString()})`).join('\n');
+    const message = entries.map((entry) => `Se actulizó la URL ${entry.site} (${new Date(entry.updatedDate).toLocaleString()})`).join('\n');
     return this.sendMessage(message);
   }
 
