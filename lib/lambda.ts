@@ -1,15 +1,14 @@
-import { CfnOutput, Duration } from 'aws-cdk-lib';
+import { Duration } from 'aws-cdk-lib';
 import { ITable } from 'aws-cdk-lib/aws-dynamodb';
 import { Rule, Schedule } from 'aws-cdk-lib/aws-events';
 import { LambdaFunction } from 'aws-cdk-lib/aws-events-targets';
-import { FunctionUrlAuthType, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction, NodejsFunctionProps } from 'aws-cdk-lib/aws-lambda-nodejs';
-import { ITopic } from 'aws-cdk-lib/aws-sns';
 import { Construct } from 'constructs';
 import { join } from 'path';
 
-export class coLambda extends Construct {
-  constructor(scope: Construct, id: string, table: ITable, topic: ITopic) {
+export class sitemapLambda extends Construct {
+  constructor(scope: Construct, id: string, table: ITable) {
     super(scope, id);
 
     const nodeJsFunctionProps: NodejsFunctionProps = {
@@ -19,15 +18,14 @@ export class coLambda extends Construct {
         ]
       },
       environment: {
-        DYNAMODB_TABLE_NAME: table.tableName,
-        URL: 'https://services.athlon.com/api/irt/secured/employee/athloncaroutletes/version/search',
-        MAX_PRICE: '40000',
-        MAX_KMS: '40000',
-        NODE_OPTIONS: '--no-warnings',
-        SNS_TOPIC_ARN: topic.topicArn
+        ENTRIES_TABLE: table.tableName,
+        TELEGRAM_TOKEN: process.env.TELEGRAM_TOKEN ?? '',
+        TELEGRAM_CHAT_IDS: process.env.TELEGRAM_CHAT_IDS ?? '',
+        ROOT_SITEMAP_URL: process.env.ROOT_SITEMAP_URL ?? '',
+        NODE_OPTIONS: '--no-warnings'
       },
       runtime: Runtime.NODEJS_18_X,
-      description: 'Lambda function to scrape new cars from the website',
+      description: 'Lambda function to scrape website sitempas and send notifications of new entries',
       functionName: 'sitemap-scrapper',
       timeout: Duration.seconds(20)
     };
@@ -48,13 +46,6 @@ export class coLambda extends Construct {
     });
     eventRule.addTarget(new LambdaFunction(func));
 
-    const funcUrl = func.addFunctionUrl({ authType: FunctionUrlAuthType.NONE });
-    new CfnOutput(this, 'invokeURL', {
-      value: funcUrl.url,
-      description: 'Invoke URL for the function'
-    });
-
     table.grantReadWriteData(func);
-    topic.grantPublish(func);
   }
 }
