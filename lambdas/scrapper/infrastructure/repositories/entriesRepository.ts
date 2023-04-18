@@ -13,6 +13,9 @@ export class EntriesRepository extends DynamoRepository<Entry, EntryKey> impleme
   public async getMaxUpdatedDate(): Promise<Date> {
     const entries = await this.getItems();
     const lastUpdatedEntry = entries?.sort((a, b) => b.updatedDate.getTime() - a.updatedDate.getTime())?.[0];
-    return lastUpdatedEntry?.updatedDate ?? new Date(0);
+    const maxUpdatedDate = lastUpdatedEntry?.updatedDate ?? new Date(0);
+    console.log(`Max updated date: ${maxUpdatedDate}`);
+
+    return maxUpdatedDate;
   }
 }
