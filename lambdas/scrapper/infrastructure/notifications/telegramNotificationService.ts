@@ -18,7 +18,7 @@ export class TelegramNotificationService {
       return;
     }
 
-    const message = entries.map((entry) => `Se actulizó la URL ${entry.site} (${new Date(entry.updatedDate).toLocaleString()})`).join('\n');
+    const message = entries.map((entry) => `Se actulizó la URL ${entry.site} (${new Date(entry.updatedDate).toLocaleString()})`).join('\n\n');
     return this.sendMessage(message);
   }
 
@@ -45,7 +45,7 @@ export class TelegramNotificationService {
    * @see https://core.telegram.org/bots/api#sendmessage
    */
   private sendMessageToChat(message: string, chatId: string): Promise<void> {
-    const uriEncodedMessage = encodeURIComponent(message.replace(/\n/g, '%0A'));
+    const uriEncodedMessage = message.replace(/\n/g, '%0A').trim();
     const endpointUrl = `https://api.telegram.org/bot${this.token}/sendMessage?chat_id=${chatId}&text=${uriEncodedMessage}`;
     return new Promise((resolve, reject) => {
       https.get(endpointUrl, (res) => {
