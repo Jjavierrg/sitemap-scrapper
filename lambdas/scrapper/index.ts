@@ -18,22 +18,17 @@ function getEnvVar(name: string): string {
   return value;
 }
 
-async function saveNewEntries(entries: Entry[]): Promise<void> {
-  if (!entries?.length) {
-    return;
-  }
-
-  for (const entry of entries) {
-    await repository.saveItem(entry);
-  }
-}
-
 function notifyNewEntries(entries: Entry[]): Promise<void> {
   if (!entries?.length) {
     return Promise.resolve();
   }
 
   return notificationService.notifyNewEntries(entries);
+}
+
+async function getLastUpdatedDate(entry: Entry): Promise<number> {
+  const dbEntry = await repository.getItem({ site: entry.site });
+  return dbEntry?.updatedDate ?? 0;
 }
 
 export async function handler(): Promise<void> {
@@ -43,14 +38,25 @@ export async function handler(): Promise<void> {
     const entries = await parser.getSitemapEntries(rootSitemapUrl, true);
     console.log(`Found ${entries.length} entries in total`);
 
-    const maxUpdatedDate = await repository.getMaxUpdatedDate();
-    console.log(`Max updated date: ${maxUpdatedDate}`);
+    if (!entries?.length) {
+      console.log('cannot find any entries');
+      return;
+    }
 
-    const newEntries = entries.filter((entry) => entry.updatedDate > maxUpdatedDate);
+    const firstEntry = entries[0];
+    const lastUpdatedDate = await getLastUpdatedDate(firstEntry);
+    const isUpdated = lastUpdatedDate <= firstEntry.updatedDate;
+    if (!isUpdated) {
+      console.log('sitemap is not updated');
+      return;
+    }
+
+    const childEntries = await parser.getSitemapEntries(firstEntry.site, true);
+    const newEntries = childEntries.filter((entry) => entry.updatedDate > lastUpdatedDate);
     console.log(`Found ${newEntries.length} new entries`);
 
-    await saveNewEntries(newEntries);
     await notifyNewEntries(newEntries);
+    await repository.saveItem(firstEntry);
 
     console.log('Done!');
   } catch (error) {

@@ -55,6 +55,7 @@ export class SiteMapParser implements ISiteMapParser {
    */
   private async parseEntries(xmlContent: string): Promise<Entry[]> {
     const result = await parseStringPromise(xmlContent);
-    return result.urlset.url.map((url: any) => ({ site: url.loc[0], updatedDate: new Date(url.lastmod[0]).getTime() }));
+    const entries = result.urlset?.url ?? result.sitemapindex?.sitemap ?? result;
+    return entries.map((url: any) => ({ site: url.loc[0], updatedDate: new Date(url.lastmod[0]).getTime() }));
   }
 }

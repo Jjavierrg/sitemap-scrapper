@@ -9,10 +9,4 @@ export class EntriesRepository extends DynamoRepository<Entry, EntryKey> impleme
     }
     super(process.env.ENTRIES_TABLE);
   }
-
-  public async getMaxUpdatedDate(): Promise<number> {
-    const entries = await this.getItems();
-    const lastUpdatedEntry = entries?.sort((a, b) => b.updatedDate - a.updatedDate)?.[0];
-    return lastUpdatedEntry?.updatedDate ?? 0;
-  }
 }
