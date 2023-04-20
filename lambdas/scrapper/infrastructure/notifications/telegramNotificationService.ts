@@ -45,7 +45,8 @@ export class TelegramNotificationService {
    * @see https://core.telegram.org/bots/api#sendmessage
    */
   private sendMessageToChat(message: string, chatId: string): Promise<void> {
-    const endpointUrl = `https://api.telegram.org/bot${this.token}/sendMessage?chat_id=${chatId}&text=${message}`;
+    const uriEncodedMessage = encodeURIComponent(message.replace(/\n/g, '%0A'));
+    const endpointUrl = `https://api.telegram.org/bot${this.token}/sendMessage?chat_id=${chatId}&text=${uriEncodedMessage}`;
     return new Promise((resolve, reject) => {
       https.get(endpointUrl, (res) => {
         if (res.statusCode !== 200) {
